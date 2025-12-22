@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Snowman 聖誕倒數禮物曆 12/25–12/31</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg:         #e6ddd6;
+      --snow:       #fdf9f4;
+      --snow-shadow:#e3d6c9;
+      --soft-brown: #8b5a4a;
+      --soft-red:   #b8635d;
+      --soft-gold:  #d3aa6a;
+      --soft-grey:  #b7b0a8;
+      --locked:     #cbc3bb;
+      --opened:     #ffe7c8;
+      --text:       #3e3834;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Noto Sans TC", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #faf4ec 0, var(--bg) 40%, #d3c5b8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: var(--text);
+    }
+
+    .scene {
+      position: relative;
+      max-width: 820px;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      background: linear-gradient(180deg, #f5eee7 0, #e4dad1 40%, #d3c5b8 100%);
+      border-radius: 28px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      padding: 18px;
+    }
+
+    @media (max-width: 640px) {
+      .scene {
+        aspect-ratio: 9 / 16;
+        padding: 14px;
+      }
+    }
+
+    /* 上方文字 */
+    .scene-header {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      color: #ffffff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      pointer-events: none;
+    }
+
+    .scene-title {
+      font-size: 1.4rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .scene-sub {
+      margin-top: 4px;
+      font-size: 0.85rem;
+    }
+
+    /* 雪花 */
+    .snowflake {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      opacity: 0.8;
+    }
+
+    /* 地面雪 */
+    .ground {
+      position: absolute;
+      bottom: 0;
+      left: -10%;
+      width: 120%;
+      height: 26%;
+      background: radial-gradient(circle at top, #fdf8f3 0, #e1d4c8 70%);
+      border-radius: 50% 50% 0 0;
+      box-shadow: 0 -6px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    /* 雪人本體 */
+    .snowman {
+      position: absolute;
+      top: 18%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .snowman-body {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 5;
+    }
+
+    .snow-circle {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--snow);
+      box-shadow:
+        0 10px 18px rgba(0, 0, 0, 0.18),
+        0 0 0 4px rgba(255, 255, 255, 0.9);
+    }
+
+    .snow-head {
+      top: 0;
+      width: 48%;
+      height: 32%;
+      border-radius: 50%;
+    }
+
+    .snow-middle {
+      top: 26%;
+      width: 70%;
+      height: 32%;
+      border-radius: 50%;
+    }
+
+    .snow-bottom {
+      top: 48%;
+      width: 90%;
+      height: 36%;
+      border-radius: 50%;
+      box-shadow:
+        0 12px 22px rgba(0, 0, 0, 0.2),
+        0 0 0 4px rgba(255, 255, 255, 0.9);
+    }
+
+    /* 臉 */
+    .face {
+      position: absolute;
+      top: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40%;
+      height: 18%;
+    }
+
+    .eye {
+      position: absolute;
+      top: 32%;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--soft-brown);
+    }
+
+    .eye.left { left: 26%; }
+    .eye.right { right: 26%; }
+
+    .nose {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      width: 22px;
+      height: 12px;
+      background: var(--soft-gold);
+      border-radius: 12px 2px 2px 12px;
+      transform: translateX(-50%) rotate(12deg);
+    }
+
+    .mouth {
+      position: absolute;
+      bottom: 8%;
+      left: 50%;
+      width: 40px;
+      height: 20px;
+      border-bottom: 3px solid var(--soft-brown);
+      border-radius: 0 0 40px 40px;
+      transform: translateX(-50%);
+    }
+
+    /* 手 */
+    .arm {
+      position: absolute;
+      top: 42%;
+      width: 28%;
+      height: 2px;
+      background: var(--soft-brown);
+    }
+
+    .arm.left {
+      left: -14%;
+      transform: rotate(-10deg);
+    }
+
+    .arm.right {
+      right: -14%;
+      transform: rotate(10deg);
+    }
+
+    .arm::before,
+    .arm::after {
+      content: "";
+      position: absolute;
+      width: 14%;
+      height: 2px;
+      background: var(--soft-brown);
+      top: -3px;
+    }
+
+    .arm::before { left: 60%; transform: rotate(30deg); }
+    .arm::after { left: 60%; transform: rotate(-30deg); }
+
+    /* 下方文字 */
+    .today-info {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: #6c645c;
+      text-align: center;
+    }
+
+    .today-info strong {
+      color: var(--soft-red);
+    }
+
+    /* 日曆按鈕（排在雪人身體上） */
+    .calendar-grid {
+      position: absolute;
+      top: 34%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48%;
+      max-width: 260px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 68px;
+      gap: 6px;
+      pointer-events: none; /* 容器不接事件，裡面的卡片會接 */
+    }
+
+    @media (max-width: 640px) {
+      .calendar-grid {
+        width: 56%;
+        grid-auto-rows: 62px;
+      }
+    }
+
+    .day-card {
+      position: relative;
+      perspective: 900px;
+      pointer-events: auto;
+    }
+
+    .day-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+      transform-style: preserve-3d;
+      border-radius: 50%;
+      box-shadow: 0 8px 14px rgba(0, 0, 0, 0.18);
+      cursor: pointer;
+    }
+
+    .day-card.opened .day-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .day-card.locked .day-card-inner {
+      box-shadow: none;
+    }
+
+    .day-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .day-front {
+      background: radial-gradient(circle at 30% 20%, #ffffff 0, var(--snow) 60%, var(--snow-shadow) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+    }
+
+    .day-number {
+      font-size: 1.2rem;
+      color: var(--soft-red);
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .day-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #827b74;
+    }
+
+    .day-back {
+      background: radial-gradient(circle at 30% 20%, #fff8f0 0, var(--opened) 65%, #f4cfa0 100%);
+      transform: rotateY(180deg);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+    }
+
+    .gift-title {
+      font-weight: 600;
+      color: var(--soft-red);
+      margin-bottom: 4px;
+      font-size: 0.78rem;
+    }
+
+    .gift-text {
+      font-size: 0.7rem;
+      line-height: 1.35;
+    }
+
+    .locked-badge,
+    .opened-badge {
+      position: absolute;
+      font-size: 0.6rem;
+      padding: 2px 5px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .locked-badge {
+      bottom: -2px;
+      right: 2px;
+      background: rgba(0, 0, 0, 0.08);
+      color: #666;
+    }
+
+    .opened-badge {
+      top: -2px;
+      right: 2px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--soft-gold);
+    }
+
+    /* 把 25–31 排成雪人肚子上的樹狀 */
+    .day-card[data-day="25"] { grid-column: 2 / span 1; }
+    .day-card[data-day="26"] { grid-column: 1 / span 1; }
+    .day-card[data-day="27"] { grid-column: 3 / span 1; }
+    .day-card[data-day="28"] { grid-column: 1 / span 1; }
+    .day-card[data-day="29"] { grid-column: 2 / span 1; }
+    .day-card[data-day="30"] { grid-column: 3 / span 1; }
+    .day-card[data-day="31"] {
+      grid-column: 2 / span 1;
+      grid-row: 4 / span 1;
+    }
+
+    /* 手機時就讓瀑布排列即可 */
+    @media (max-width: 640px) {
+      .day-card[data-day="25"],
+      .day-card[data-day="26"],
+      .day-card[data-day="27"],
+      .day-card[data-day="28"],
+      .day-card[data-day="29"],
+      .day-card[data-day="30"],
+      .day-card[data-day="31"] {
+        grid-column: auto;
+        grid-row: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <header class="scene-header">
+      <div class="scene-title">MERRY CHRISTMAS</div>
+      <div class="scene-sub">Snowman Advent · 12/25 – 12/31</div>
+    </header>
+
+    <!-- 幾片簡單雪花點綴 -->
+    <div class="snowflake" style="top:12%;left:18%;"></div>
+    <div class="snowflake" style="top:22%;left:70%;"></div>
+    <div class="snowflake" style="top:30%;left:40%;"></div>
+    <div class="snowflake" style="top:8%;left:55%;"></div>
+    <div class="snowflake" style="top:18%;left:85%;"></div>
+    <div class="snowflake" style="top:40%;left:10%;"></div>
+
+    <div class="ground"></div>
+
+    <!-- 雪人本體 -->
+    <div class="snowman">
+      <div class="snowman-body">
+        <div class="snow-circle snow-head"></div>
+        <div class="snow-circle snow-middle"></div>
+        <div class="snow-circle snow-bottom"></div>
+
+        <div class="face">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="nose"></div>
+          <div class="mouth"></div>
+        </div>
+
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+
+        <!-- 日曆按鈕 -->
+        <div class="calendar-grid" id="calendar"></div>
+      </div>
+
+      <div class="today-info" id="today-info"></div>
+    </div>
+  </div>
+
+  <script>
+    const year = 2025;
+    const startDay = 25;
+    const endDay = 31;
+
+    const gifts = {
+      25: {
+        title: "Day 1 – 聖誕起點",
+        text: "今天先收下這張聖誕祝福卡片。願接下來的日子，你都被溫柔包圍，也包含被我好好照顧。"
+      },
+      26: {
+        title: "Day 2 – 回憶任務",
+        text: "挑一張今年你最喜歡的我們的合照傳給我，我會把它變成一張精美的小海報送回給你。"
+      },
+      27: {
+        title: "Day 3 – 神秘歌單",
+        text: "把你最近很愛的幾首歌丟給我，我會回傳一份專屬歌單，當作你接下來幾天的 BGM。"
+      },
+      28: {
+        title: "Day 4 – 溫暖文字",
+        text: "寫下三句你想對自己說的鼓勵話。今天先保存，跨年夜再打開一次，看看你有多值得被擁抱。"
+      },
+      29: {
+        title: "Day 5 – 旅行回憶",
+        text: "從我們的旅行相簿裡，選一張你最有感覺的照片給我，我會為那個畫面寫一段小故事送給你。"
+      },
+      30: {
+        title: "Day 6 – 預備跨年",
+        text: "想一件明年想一起完成的事（最好是一趟旅行），可以先偷偷把地點寫在備忘錄裡，等明天揭曉。"
+      },
+      31: {
+        title: "Day 7 – 跨年壓軸",
+        text: "謝謝你陪我一起走到今年的最後一天。今晚讓我們用照片、訊息和笑點，把今年好好回放一次，當作給彼此的跨年小動畫。"
+      }
+    };
+
+    const today = new Date();
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth();
+    const todayDate = today.getDate();
+
+    const todayInfoEl = document.getElementById("today-info");
+    const inRange =
+      todayYear === year &&
+      todayMonth === 11 &&
+      todayDate >= startDay &&
+      todayDate <= endDay;
+
+    todayInfoEl.textContent =
+      `今天是 ${todayYear} / ${todayMonth + 1} / ${todayDate}。` +
+      (inRange
+        ? " 你可以打開今天以及之前已解鎖的雪人小圓肚肚。"
+        : " 在 12/25–12/31 期間，雪人肚子上的小圓點會依日期依序亮起。");
+
+    const calendarEl = document.getElementById("calendar");
+
+    for (let day = startDay; day <= endDay; day++) {
+      const card = document.createElement("article");
+      card.className = "day-card";
+      card.dataset.day = day;
+
+      const cardInner = document.createElement("div");
+      cardInner.className = "day-card-inner";
+
+      const isUnlocked =
+        todayYear > year ||
+        (todayYear === year &&
+          (todayMonth > 11 || (todayMonth === 11 && todayDate >= day)));
+
+      if (!isUnlocked) card.classList.add("locked");
+
+      const front = document.createElement("div");
+      front.className = "day-face day-front";
+      front.innerHTML = `
+        <div class="day-number">${day}</div>
+        <div class="day-label">DEC</div>
+      `;
+
+      const back = document.createElement("div");
+      back.className = "day-face day-back";
+      const gift = gifts[day] || {
+        title: "神秘禮物",
+        text: "這一天還沒有填內容，可以之後再加。"
+      };
+      back.innerHTML = `
+        <div class="gift-title">${gift.title}</div>
+        <div class="gift-text">${gift.text}</div>
+      `;
+
+      if (!isUnlocked) {
+        const badge = document.createElement("div");
+        badge.className = "locked-badge";
+        badge.textContent = "鎖定中";
+        card.appendChild(badge);
+      } else {
+        const badge = document.createElement("div");
+        badge.className = "opened-badge";
+        badge.textContent = "可開啟";
+        card.appendChild(badge);
+      }
+
+      cardInner.appendChild(front);
+      cardInner.appendChild(back);
+      card.appendChild(cardInner);
+      calendarEl.appendChild(card);
+
+      card.addEventListener("click", () => {
+        if (!isUnlocked) {
+          alert("雪人說：還沒到這一天喔，先保留一點期待！");
+          return;
+        }
+        card.classList.toggle("opened");
+      });
+    }
+  </script>
+</body>
+</html>
