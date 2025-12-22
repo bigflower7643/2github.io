@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>Snowman 聖誕倒數禮物曆 12/25–12/31</title>
+  <title>Snowman 聖誕倒數禮物曆 12/25–12/31（預覽版）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -54,27 +54,31 @@
       }
     }
 
-    /* 上方文字 */
+    /* 上方文字：更活潑、粗一點 */
     .scene-header {
       position: absolute;
-      top: 16px;
+      top: 18px;
       left: 50%;
       transform: translateX(-50%);
       text-align: center;
       color: #ffffff;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.22);
       pointer-events: none;
     }
 
     .scene-title {
-      font-size: 1.4rem;
-      letter-spacing: 0.18em;
+      font-size: 1.6rem;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
+      font-weight: 800;
     }
 
     .scene-sub {
       margin-top: 4px;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.95;
     }
 
     /* 雪花 */
@@ -87,7 +91,6 @@
       opacity: 0.8;
     }
 
-    /* 地面雪 */
     .ground {
       position: absolute;
       bottom: 0;
@@ -99,24 +102,24 @@
       box-shadow: 0 -6px 10px rgba(0, 0, 0, 0.06);
     }
 
-    /* 雪人本體 */
+    /* 雪人：整體放大 */
     .snowman {
       position: absolute;
       top: 18%;
       left: 50%;
       transform: translateX(-50%);
-      width: 60%;
-      max-width: 360px;
+      width: 70%;
+      max-width: 420px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 10px;
     }
 
     .snowman-body {
       position: relative;
       width: 100%;
-      aspect-ratio: 3 / 5;
+      aspect-ratio: 3 / 4.6;
     }
 
     .snow-circle {
@@ -132,35 +135,34 @@
     .snow-head {
       top: 0;
       width: 48%;
-      height: 32%;
+      height: 30%;
       border-radius: 50%;
     }
 
     .snow-middle {
-      top: 26%;
-      width: 70%;
+      top: 24%;
+      width: 74%;
       height: 32%;
       border-radius: 50%;
     }
 
     .snow-bottom {
-      top: 48%;
-      width: 90%;
-      height: 36%;
+      top: 46%;
+      width: 98%;
+      height: 38%;
       border-radius: 50%;
       box-shadow:
         0 12px 22px rgba(0, 0, 0, 0.2),
         0 0 0 4px rgba(255, 255, 255, 0.9);
     }
 
-    /* 臉 */
     .face {
       position: absolute;
-      top: 8%;
+      top: 10%;
       left: 50%;
       transform: translateX(-50%);
       width: 40%;
-      height: 18%;
+      height: 20%;
     }
 
     .eye {
@@ -177,7 +179,7 @@
 
     .nose {
       position: absolute;
-      top: 45%;
+      top: 46%;
       left: 50%;
       width: 22px;
       height: 12px;
@@ -188,7 +190,7 @@
 
     .mouth {
       position: absolute;
-      bottom: 8%;
+      bottom: 10%;
       left: 50%;
       width: 40px;
       height: 20px;
@@ -197,22 +199,21 @@
       transform: translateX(-50%);
     }
 
-    /* 手 */
     .arm {
       position: absolute;
       top: 42%;
-      width: 28%;
+      width: 30%;
       height: 2px;
       background: var(--soft-brown);
     }
 
     .arm.left {
-      left: -14%;
+      left: -16%;
       transform: rotate(-10deg);
     }
 
     .arm.right {
-      right: -14%;
+      right: -16%;
       transform: rotate(10deg);
     }
 
@@ -229,37 +230,38 @@
     .arm::before { left: 60%; transform: rotate(30deg); }
     .arm::after { left: 60%; transform: rotate(-30deg); }
 
-    /* 下方文字 */
+    /* 下方說明文字（可自行修改） */
     .today-info {
-      margin-top: 4px;
+      margin-top: 2px;
       font-size: 0.8rem;
       color: #6c645c;
       text-align: center;
+      max-width: 90%;
     }
 
     .today-info strong {
       color: var(--soft-red);
     }
 
-    /* 日曆按鈕（排在雪人身體上） */
+    /* 日曆按鈕：擺在肚子上，留更多空間 */
     .calendar-grid {
       position: absolute;
-      top: 34%;
+      top: 35%;
       left: 50%;
       transform: translateX(-50%);
-      width: 48%;
-      max-width: 260px;
+      width: 60%;
+      max-width: 280px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      grid-auto-rows: 68px;
-      gap: 6px;
-      pointer-events: none; /* 容器不接事件，裡面的卡片會接 */
+      grid-auto-rows: 72px;
+      gap: 8px;
+      pointer-events: none;
     }
 
     @media (max-width: 640px) {
       .calendar-grid {
-        width: 56%;
-        grid-auto-rows: 62px;
+        width: 68%;
+        grid-auto-rows: 68px;
       }
     }
 
@@ -284,10 +286,6 @@
       transform: rotateY(180deg);
     }
 
-    .day-card.locked .day-card-inner {
-      box-shadow: none;
-    }
-
     .day-face {
       position: absolute;
       inset: 0;
@@ -307,14 +305,14 @@
     }
 
     .day-number {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       color: var(--soft-red);
       font-weight: 600;
       margin-bottom: 2px;
     }
 
     .day-label {
-      font-size: 0.55rem;
+      font-size: 0.58rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: #827b74;
@@ -330,38 +328,15 @@
       font-weight: 600;
       color: var(--soft-red);
       margin-bottom: 4px;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
     }
 
     .gift-text {
-      font-size: 0.7rem;
-      line-height: 1.35;
+      font-size: 0.72rem;
+      line-height: 1.45;
     }
 
-    .locked-badge,
-    .opened-badge {
-      position: absolute;
-      font-size: 0.6rem;
-      padding: 2px 5px;
-      border-radius: 999px;
-      text-transform: uppercase;
-    }
-
-    .locked-badge {
-      bottom: -2px;
-      right: 2px;
-      background: rgba(0, 0, 0, 0.08);
-      color: #666;
-    }
-
-    .opened-badge {
-      top: -2px;
-      right: 2px;
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--soft-gold);
-    }
-
-    /* 把 25–31 排成雪人肚子上的樹狀 */
+    /* 樹狀排列 */
     .day-card[data-day="25"] { grid-column: 2 / span 1; }
     .day-card[data-day="26"] { grid-column: 1 / span 1; }
     .day-card[data-day="27"] { grid-column: 3 / span 1; }
@@ -373,7 +348,6 @@
       grid-row: 4 / span 1;
     }
 
-    /* 手機時就讓瀑布排列即可 */
     @media (max-width: 640px) {
       .day-card[data-day="25"],
       .day-card[data-day="26"],
@@ -392,10 +366,9 @@
   <div class="scene">
     <header class="scene-header">
       <div class="scene-title">MERRY CHRISTMAS</div>
-      <div class="scene-sub">Snowman Advent · 12/25 – 12/31</div>
+      <div class="scene-sub">SNOWMAN ADVENT · 12/25 – 12/31</div>
     </header>
 
-    <!-- 幾片簡單雪花點綴 -->
     <div class="snowflake" style="top:12%;left:18%;"></div>
     <div class="snowflake" style="top:22%;left:70%;"></div>
     <div class="snowflake" style="top:30%;left:40%;"></div>
@@ -405,7 +378,6 @@
 
     <div class="ground"></div>
 
-    <!-- 雪人本體 -->
     <div class="snowman">
       <div class="snowman-body">
         <div class="snow-circle snow-head"></div>
@@ -422,11 +394,13 @@
         <div class="arm left"></div>
         <div class="arm right"></div>
 
-        <!-- 日曆按鈕 -->
         <div class="calendar-grid" id="calendar"></div>
       </div>
 
-      <div class="today-info" id="today-info"></div>
+      <!-- 這一行是可以隨便改的說明文字 -->
+      <div class="today-info" id="today-info">
+        這是預覽版，小圓肚肚現在都可以先打開看看內容，之後我們再把日期鎖起來。
+      </div>
     </div>
   </div>
 
@@ -466,26 +440,9 @@
       }
     };
 
-    const today = new Date();
-    const todayYear = today.getFullYear();
-    const todayMonth = today.getMonth();
-    const todayDate = today.getDate();
-
-    const todayInfoEl = document.getElementById("today-info");
-    const inRange =
-      todayYear === year &&
-      todayMonth === 11 &&
-      todayDate >= startDay &&
-      todayDate <= endDay;
-
-    todayInfoEl.textContent =
-      `今天是 ${todayYear} / ${todayMonth + 1} / ${todayDate}。` +
-      (inRange
-        ? " 你可以打開今天以及之前已解鎖的雪人小圓肚肚。"
-        : " 在 12/25–12/31 期間，雪人肚子上的小圓點會依日期依序亮起。");
-
     const calendarEl = document.getElementById("calendar");
 
+    // 預覽版：全部都視為已解鎖
     for (let day = startDay; day <= endDay; day++) {
       const card = document.createElement("article");
       card.className = "day-card";
@@ -493,13 +450,6 @@
 
       const cardInner = document.createElement("div");
       cardInner.className = "day-card-inner";
-
-      const isUnlocked =
-        todayYear > year ||
-        (todayYear === year &&
-          (todayMonth > 11 || (todayMonth === 11 && todayDate >= day)));
-
-      if (!isUnlocked) card.classList.add("locked");
 
       const front = document.createElement("div");
       front.className = "day-face day-front";
@@ -519,17 +469,10 @@
         <div class="gift-text">${gift.text}</div>
       `;
 
-      if (!isUnlocked) {
-        const badge = document.createElement("div");
-        badge.className = "locked-badge";
-        badge.textContent = "鎖定中";
-        card.appendChild(badge);
-      } else {
-        const badge = document.createElement("div");
-        badge.className = "opened-badge";
-        badge.textContent = "可開啟";
-        card.appendChild(badge);
-      }
+      const badge = document.createElement("div");
+      badge.className = "opened-badge";
+      badge.textContent = "預覽中";
+      card.appendChild(badge);
 
       cardInner.appendChild(front);
       cardInner.appendChild(back);
@@ -537,10 +480,6 @@
       calendarEl.appendChild(card);
 
       card.addEventListener("click", () => {
-        if (!isUnlocked) {
-          alert("雪人說：還沒到這一天喔，先保留一點期待！");
-          return;
-        }
         card.classList.toggle("opened");
       });
     }
