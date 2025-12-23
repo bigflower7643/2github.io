@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>聖誕倒數月曆 | Only For You</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(135deg, #c9b8a8 0%, #d4c4b4 50%, #bfaea0 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 背景裝飾 */
+    .bg-decoration {
+      position: fixed;
+      pointer-events: none;
+      opacity: 0.15;
+      z-index: 0;
+    }
+    .tree-left { bottom: 20px; left: 20px; font-size: 80px; }
+    .tree-right { bottom: 20px; right: 20px; font-size: 80px; }
+
+    .snowflake {
+      position: fixed;
+      color: rgba(255, 255, 255, 0.6);
+      animation: fall linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-10vh) rotate(0deg); }
+      100% { transform: translateY(110vh) rotate(360deg); }
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      z-index: 10;
+    }
+
+    .title {
+      font-size: 24px;
+      color: #7a6f66;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+    }
+
+    .snowman-container {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 1 / 1.5;
+      margin: 0 auto;
+      z-index: 10;
+    }
+
+    .snowman-bg {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* 按鈕樣式 */
+    .day-button {
+      position: absolute;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 10;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #5a4f45;
+    }
+
+    .day-button:hover {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .day-button.unopened {
+      background: linear-gradient(135deg, #e0d5cb 0%, #c9b8a8 100%);
+    }
+
+    .day-button.opened {
+      background: linear-gradient(135deg, #ff8fab 0%, #ff6b8f 100%);
+      color: white !important;
+    }
+
+    /* 按鈕佈局設定 */
+    .day-25 { 
+      top: -2%; left: 50%; transform: translateX(-50%); 
+      width: 90px; height: 90px;
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      background: linear-gradient(135deg, #fff3b0 0%, #ffd700 100%) !important;
+    }
+    .day-26 { top: 28%; left: 5%; width: 62px; height: 62px; border-radius: 50%; }
+    .day-27 { 
+      top: 45%; left: 50%; transform: translateX(-50%); 
+      width: 90px; height: 45px; 
+      border-radius: 10px / 50%;
+      background: linear-gradient(135deg, #a8e6cf 0%, #7fd3b0 100%) !important;
+      border: 2px solid #5fb895;
+    }
+    .day-27::after { content: ''; position: absolute; width: 12px; height: 100%; background: rgba(0,0,0,0.1); left: 50%; transform: translateX(-50%); }
+    .day-28 { top: 28%; right: 5%; width: 58px; height: 58px; border-radius: 50%; }
+    .day-29 { top: 62%; left: 18%; width: 68px; height: 68px; border-radius: 40% 60%; }
+    .day-30 { top: 62%; right: 18%; width: 64px; height: 64px; border-radius: 60% 40%; }
+    .day-31 { top: 72%; left: 50%; transform: translateX(-50%); width: 75px; height: 75px; border-radius: 50%; }
+
+    /* 彈出視窗設計 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal.show { display: flex; }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow: hidden; /* 防止內部 iframe 溢出圓角 */
+      box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-media-area {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-media-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .video-wrapper {
+      width: 100%;
+      height: 100%;
+    }
+
+    .modal-info {
+      padding: 25px;
+      text-align: center;
+      overflow-y: auto;
+    }
+    .modal-emoji { font-size: 40px; margin-bottom: 5px; }
+    .modal-title { font-size: 22px; color: #333; margin-bottom: 15px; font-weight: bold; }
+    .modal-text {
+      font-size: 16px;
+      color: #666;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      margin-bottom: 20px;
+    }
+    .song-tag {
+      display: inline-block;
+      background: #fdf2f4;
+      color: #ff6b8f;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 13px;
+      margin-bottom: 15px;
+      border: 1px solid #ffccd5;
+    }
+
+    .modal-close {
+      background: #ff6b8f;
+      color: white;
+      border: none;
+      padding: 15px 0;
+      width: 100%;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .modal-close:hover { background: #ff4d79; }
+
+    .footer { text-align: center; margin-top: 20px; color: #7a6f66; z-index: 10; }
+  </style>
+</head>
+<body>
+  <div id="snowflakes"></div>
+
+  <div class="header">
+    <h1 class="title">Only You | 2025 Countdown</h1>
+  </div>
+
+  <div class="snowman-container">
+    <svg class="snowman-bg" viewBox="0 0 320 520" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="160" cy="360" r="120" fill="white" stroke="#e8e0d8" stroke-width="4"/>
+      <circle cx="160" cy="170" r="95" fill="white" stroke="#e8e0d8" stroke-width="4"/>
+      <circle cx="140" cy="145" r="7" fill="#5a4f45"/>
+      <circle cx="180" cy="145" r="7" fill="#5a4f45"/>
+      <polygon points="160,155 148,173 172,173" fill="#ff8c42"/>
+      <path d="M 135 182 Q 160 195 185 182" stroke="#5a4f45" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <rect x="115" y="60" width="90" height="40" rx="5" fill="#5a4f45"/>
+      <rect x="125" y="45" width="70" height="25" rx="5" fill="#3d3832"/>
+    </svg>
+
+    <button class="day-button day-25 unopened" data-day="25">25</button>
+    <button class="day-button day-26 unopened" data-day="26">26</button>
+    <button class="day-button day-27 unopened" data-day="27">27</button>
+    <button class="day-button day-28 unopened" data-day="28">28</button>
+    <button class="day-button day-29 unopened" data-day="29">29</button>
+    <button class="day-button day-30 unopened" data-day="30">30</button>
+    <button class="day-button day-31 unopened" data-day="31">31</button>
+  </div>
+
+  <div class="footer">
+    <p>已蒐集驚喜 <span id="completedCount">0</span> / 7</p>
+  </div>
+
+  <!-- 彈出視窗 -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="modal-media-area" id="modalMediaArea"></div>
+      <div class="modal-info">
+        <div class="modal-emoji" id="modalEmoji"></div>
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div id="songTag" class="song-tag" style="display:none;"></div>
+        <div class="modal-text" id="modalText"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">關閉驚喜</button>
+    </div>
+  </div>
+
+  <script>
+    const surprises = {
+      25: {
+        emoji: "🎅",
+        title: "聖誕節快樂!",
+        text: "親愛的，這是我們一起度過的第一個聖誕節。\n\n希望未來每個聖誕節都有你陪伴。❤️",
+        image: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?auto=format&fit=crop&q=80&w=800",
+        songTitle: "",
+        youtubeId: ""
+      },
+      26: {
+        emoji: "💝",
+        title: "愛的回憶",
+        text: "還記得我們第一次見面的那天嗎？\n\n你的笑容讓我心動到現在。",
+        image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&q=80&w=800",
+        songTitle: "",
+        youtubeId: ""
+      },
+      27: {
+        emoji: "🎶",
+        title: "我們的歌",
+        text: "這首歌讓我想起你，每次聽到都會微笑。",
+        image: "",
+        songTitle: "推薦歌曲：甜蜜旋律",
+        // 建議移除 si 參數，使用純粹的影片 ID
+        youtubeId: "flLc6LmAG6c" 
+      },
+      28: {
+        emoji: "🙏",
+        title: "感謝有你",
+        text: "謝謝你今年為我做的一切。\n\n你的陪伴是我最大的幸福。💕",
+        image: "https://images.unsplash.com/photo-1530103043960-ef38714abb15?auto=format&fit=crop&q=80&w=800",
+        songTitle: "",
+        youtubeId: ""
+      },
+      29: {
+        emoji: "📷",
+        title: "珍貴時刻",
+        text: "這張照片記錄了我們最美好的回憶。",
+        image: "https://images.unsplash.com/photo-1516589174184-c68526673fd4?auto=format&fit=crop&q=80&w=800",
+        songTitle: "",
+        youtubeId: ""
+      },
+      30: {
+        emoji: "🎯",
+        title: "明年計畫",
+        text: "新的一年，我想和你一起：\n\n✈️ 去海邊旅行\n🍜 嘗試新餐廳\n💑 每天都更愛你一點",
+        image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800",
+        songTitle: "",
+        youtubeId: ""
+      },
+      31: {
+        emoji: "🎆",
+        title: "新年快樂",
+        text: "跨年倒數了！\n\n願2026年我們一起創造更多美好回憶。\n\n永遠愛你 ♡",
+        image: "https://images.unsplash.com/photo-1467810563316-b5476525c0f9?auto=format&fit=crop&q=80&w=800",
+        songTitle: "",
+        youtubeId: ""
+      }
+    };
+
+    let openedDoors = JSON.parse(localStorage.getItem('openedDoors') || '[]');
+
+    // 初始化狀態
+    openedDoors.forEach(day => {
+      const btn = document.querySelector(`[data-day="${day}"]`);
+      if (btn) { btn.classList.remove('unopened'); btn.classList.add('opened'); }
+    });
+    updateCount();
+
+    // 飄雪動畫
+    const snowWrap = document.getElementById('snowflakes');
+    for (let i = 0; i < 40; i++) {
+      const s = document.createElement('div');
+      s.className = 'snowflake';
+      s.textContent = '❄';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.fontSize = (Math.random() * 10 + 10) + 'px';
+      s.style.animationDuration = (Math.random() * 5 + 7) + 's';
+      s.style.animationDelay = Math.random() * 5 + 's';
+      snowWrap.appendChild(s);
+    }
+
+    document.querySelectorAll('.day-button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const day = parseInt(this.dataset.day);
+        if (!openedDoors.includes(day)) {
+          openedDoors.push(day);
+          localStorage.setItem('openedDoors', JSON.stringify(openedDoors));
+          this.classList.remove('unopened');
+          this.classList.add('opened');
+          updateCount();
+        }
+        showModal(day);
+      });
+    });
+
+    function showModal(day) {
+      const data = surprises[day];
+      const mediaArea = document.getElementById('modalMediaArea');
+      const songTag = document.getElementById('songTag');
+      
+      mediaArea.innerHTML = ''; 
+      
+      // 處理 YouTube 嵌入：使用完整的安全性參數與權限聲明
+      if (data.youtubeId) {
+        // 加入 mute=1 是因為大多數現代瀏覽器不允許非靜音的自動播放
+        // 加入 rel=0 防止顯示相關影片
+        const ytUrl = `https://www.youtube.com/embed/${data.youtubeId}?autoplay=1&mute=1&rel=0&showinfo=0&enablejsapi=1`;
+        
+        mediaArea.innerHTML = `
+          <div class="video-wrapper">
+            <iframe 
+              width="100%" 
+              height="100%" 
+              src="${ytUrl}" 
+              title="YouTube video player" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              referrerpolicy="strict-origin-when-cross-origin" 
+              allowfullscreen>
+            </iframe>
+          </div>`;
+      } else if (data.image) {
+        mediaArea.innerHTML = `<img src="${data.image}" alt="Moment">`;
+      } else {
+        mediaArea.innerHTML = `<div style="color:#eee; font-size:60px;">🎁</div>`;
+      }
+
+      document.getElementById('modalEmoji').textContent = data.emoji;
+      document.getElementById('modalTitle').textContent = data.title;
+      document.getElementById('modalText').textContent = data.text;
+      
+      if (data.songTitle) {
+        songTag.style.display = 'inline-block';
+        songTag.textContent = '♪ ' + data.songTitle;
+      } else {
+        songTag.style.display = 'none';
+      }
+
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('show');
+      // 關閉時必須清空媒體區，否則音樂會繼續播放
+      document.getElementById('modalMediaArea').innerHTML = ''; 
+    }
+
+    function updateCount() {
+      document.getElementById('completedCount').textContent = openedDoors.length;
+    }
+
+    // 點擊背景遮罩關閉
+    window.onclick = function(e) {
+      if (e.target == document.getElementById('modal')) closeModal();
+    }
+  </script>
+</body>
+</html>
